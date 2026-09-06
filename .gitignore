@@ -1,0 +1,10 @@
+# Binaries
+*.exe
+*.exe witness
+*.exe.stackdump
+*.bin
+*.out
+
+# IDE & OS
+.vscode/
+.DS_Store
