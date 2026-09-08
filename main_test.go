@@ -38,23 +38,43 @@ func TestGeldAbheben(t *testing.T) {
 	}
 }
 
+// gültig - дійсний, коректний, чинний
+// ungültig - недійсний, некоректний
+// die Länge - довжина
+// das Landeskürzel - код країни
+// der Fehler - помилка
+// erwarten - очікувати (erwartet - очікується)
 func TestIstIBANGueltig(t *testing.T) {
-	// Перевірка коректної IBAN
 	konto := &Konto{}
-	err := konto.IstIBANGueltig("DE89370400440532013000")
-	if err != nil {
-		t.Errorf("Очікувалася відсутність помилки для коректної IBAN, але отримали: %v", err)
+
+	tests := []struct {
+		name    string
+		iban    string
+		wantErr bool
+	}{
+		{
+			name:    "Gültige deutsche IBAN",
+			iban:    "DE89370400440532013000",
+			wantErr: false,
+		},
+		{
+			name:    "Ungültige IBAN-Länge",
+			iban:    "DE8937040044053201300",
+			wantErr: true,
+		},
+		{
+			name:    "Ungültiges Landeskürzel",
+			iban:    "FR89370400440532013000",
+			wantErr: true,
+		},
 	}
 
-	// Перевірка некоректної IBAN (неправильна довжина)
-	err = konto.IstIBANGueltig("DE8937040044053201300")
-	if err == nil {
-		t.Errorf("Очікувалася помилка для некоректної IBAN (неправильна довжина), але її немає")
-	}
-
-	// Перевірка некоректної IBAN (неправильний код країни)
-	err = konto.IstIBANGueltig("FR89370400440532013000")
-	if err == nil {
-		t.Errorf("Очікувалася помилка для некоректної IBAN (неправильний код країни), але її немає")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := konto.IstIBANGueltig(tt.iban)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("IstIBANGueltig() Fehler = %v, erwartet Fehler = %v", err, tt.wantErr)
+			}
+		})
 	}
 }
