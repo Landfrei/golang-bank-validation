@@ -2,39 +2,97 @@ package main
 
 import "testing"
 
+// die Einzahlung - поповнення, внесення коштів
+// der Betrag - сума
+// das Guthaben - баланс, залишок на рахунку
 func TestGeldEinzahlen(t *testing.T) {
-	konto := Konto{Guthaben: 100}
-
-	// Перевірка коректного поповнення
-	err := konto.GeldEinzahlen(100)
-	if err != nil {
-		t.Errorf("Очікувалася відсутність помилки, але отримали: %v", err)
+	tests := []struct {
+		name          string
+		startGuthaben int
+		einzahlBetrag int
+		wantGuthaben  int
+		wantErr       bool
+	}{
+		{
+			name:          "Gültige Einzahlung",
+			startGuthaben: 100,
+			einzahlBetrag: 50,
+			wantGuthaben:  150,
+			wantErr:       false,
+		},
+		{
+			name:          "Ungültiger Betrag (negativ)",
+			startGuthaben: 100,
+			einzahlBetrag: -50,
+			wantGuthaben:  100,
+			wantErr:       true,
+		},
 	}
 
-	// Перевірка від'ємної суми
-	err = konto.GeldEinzahlen(-50)
-	if err == nil {
-		t.Errorf("Очікувалася помилка для від'ємної суми, але її немає")
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			konto := &Konto{Guthaben: tt.startGuthaben}
+			err := konto.GeldEinzahlen(tt.einzahlBetrag)
 
-	if konto.Guthaben != 200 {
-		t.Errorf("Очікувався баланс 200, але отримали: %d", konto.Guthaben)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GeldEinzahlen() Fehler = %v, erwartet Fehler = %v", err, tt.wantErr)
+			}
+
+			if konto.Guthaben != tt.wantGuthaben {
+				t.Errorf("GeldEinzahlen() Guthaben = %d, erwartet Guthaben = %d", konto.Guthaben, tt.wantGuthaben)
+			}
+		})
 	}
 }
 
+// die Abhebung - зняття грошей
+// der Betrag - сума
+// das Guthaben - баланс, залишок на рахунку
+// nicht genug Geld - недостатньо грошей
 func TestGeldAbheben(t *testing.T) {
-	konto := Konto{Guthaben: 100}
-
-	// Перевірка зняття суми в межах балансу
-	err := konto.GeldAbheben(50)
-	if err != nil {
-		t.Errorf("Очікувалася відсутність помилки, але отримали: %v", err)
+	tests := []struct {
+		name          string
+		startGuthaben int
+		abhebeBetrag  int
+		wantGuthaben  int
+		wantErr       bool
+	}{
+		{
+			name:          "Gültige Abhebung",
+			startGuthaben: 100,
+			abhebeBetrag:  50,
+			wantGuthaben:  50,
+			wantErr:       false,
+		},
+		{
+			name:          "Ungültiger Betrag (nicht genug Geld)",
+			startGuthaben: 100,
+			abhebeBetrag:  200,
+			wantGuthaben:  100,
+			wantErr:       true,
+		},
+		{
+			name:          "Ungültiger Betrag (negativ oder null)",
+			startGuthaben: 100,
+			abhebeBetrag:  0,
+			wantGuthaben:  100,
+			wantErr:       true,
+		},
 	}
 
-	// Перевірка спроби зняти більше, ніж є на рахунку
-	err = konto.GeldAbheben(10000)
-	if err == nil {
-		t.Errorf("Очікувалася помилка перевищення балансу, але її немає")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			konto := &Konto{Guthaben: tt.startGuthaben}
+			err := konto.GeldAbheben(tt.abhebeBetrag)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GeldAbheben() Fehler = %v, erwartet Fehler = %v", err, tt.wantErr)
+			}
+
+			if konto.Guthaben != tt.wantGuthaben {
+				t.Errorf("GeldAbheben() Guthaben = %d, erwartet Guthaben = %d", konto.Guthaben, tt.wantGuthaben)
+			}
+		})
 	}
 }
 
