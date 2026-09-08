@@ -37,3 +37,24 @@ func TestGeldAbheben(t *testing.T) {
 		t.Errorf("Очікувалася помилка перевищення балансу, але її немає")
 	}
 }
+
+func TestIstIBANGueltig(t *testing.T) {
+	// Перевірка коректної IBAN
+	konto := &Konto{}
+	err := konto.IstIBANGueltig("DE89370400440532013000")
+	if err != nil {
+		t.Errorf("Очікувалася відсутність помилки для коректної IBAN, але отримали: %v", err)
+	}
+
+	// Перевірка некоректної IBAN (неправильна довжина)
+	err = konto.IstIBANGueltig("DE8937040044053201300")
+	if err == nil {
+		t.Errorf("Очікувалася помилка для некоректної IBAN (неправильна довжина), але її немає")
+	}
+
+	// Перевірка некоректної IBAN (неправильний код країни)
+	err = konto.IstIBANGueltig("FR89370400440532013000")
+	if err == nil {
+		t.Errorf("Очікувалася помилка для некоректної IBAN (неправильний код країни), але її немає")
+	}
+}

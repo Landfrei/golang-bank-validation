@@ -32,6 +32,19 @@ func (k *Konto) GeldAbheben(betrag int) error {
 	k.Guthaben -= betrag
 	return nil
 }
+
+// gültig - дійсний, коректний, чинний
+// das Landeskürzel - код країни
+func (k *Konto) IstIBANGueltig(iban string) error {
+	if len(iban) != 22 {
+		return fmt.Errorf("ungültige IBAN-Länge: %d (muss 22 sein)", len(iban))
+	}
+	if iban[:2] != "DE" {
+		return fmt.Errorf("ungültiges Landeskürzel: %s (muss DE sein)", iban[:2])
+	}
+	return nil
+}
+
 func main() {
 	meinBank := Konto{
 		Guthaben: 100,
